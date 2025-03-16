@@ -1,0 +1,74 @@
+name: Process PDF Files
+
+on:
+  push:
+    paths:
+      - 'Files/**/*.pdf'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  process-pdfs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 获取完整历史以检测新文件
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # 安装pdf2image所需的系统依赖
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+      
+      - name: Find new or modified PDF files
+        id: find-pdfs
+        run: |
+          # 获取最近提交中新增或修改的PDF文件
+          NEW_PDFS=$(git diff --name-only HEAD^ HEAD | grep -E "^Files/.*\.pdf$" || echo "")
+          echo "Found new or modified PDFs: $NEW_PDFS"
+          echo "new_pdfs=$NEW_PDFS" >> $GITHUB_OUTPUT
+      
+      - name: Process new PDFs
+        if: steps.find-pdfs.outputs.new_pdfs != ''
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: |
+          # 处理每个新的PDF文件
+          for pdf in ${{ steps.find-pdfs.outputs.new_pdfs }}; do
+            echo "Processing $pdf"
+            python main.py --test-pdf "$pdf" --force
+          done
+      
+      - name: Process all unprocessed PDFs
+        if: steps.find-pdfs.outputs.new_pdfs == ''
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: |
+          # 如果没有检测到特定的新PDF，则处理所有未处理的PDF
+          python main.py --process-all
+      
+      - name: Commit and push results
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # 添加处理结果和进度文件
+          git add results/
+          git add progress.pkl
+          
+          # 提交更改（如果有）
+          git diff --staged --quiet || git commit -m "Update processing results [skip ci]"
+          
+          # 推送更改
+          git push
