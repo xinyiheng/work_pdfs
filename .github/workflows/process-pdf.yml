@@ -46,6 +46,7 @@ jobs:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
         run: |
           # 处理每个新的PDF文件
+          IFS=$'\n'
           for pdf in ${{ steps.find-pdfs.outputs.new_pdfs }}; do
             echo "Processing $pdf"
             python main.py --test-pdf "$pdf" --force
