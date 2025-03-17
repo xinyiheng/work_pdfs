@@ -3,6 +3,7 @@ import json
 import logging
 from time import sleep
 import os
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -107,8 +108,7 @@ class FeishuWebhook:
             logger.info(f"Sending {len(data)} book entries from {pdf_filename} to Feishu webhook")
             
             # Get the base filename without extension
-            import os
-            base_filename = os.path.splitext(os.path.basename(pdf_filename))[0]
+            base_filename = Path(os.path.basename(pdf_filename)).stem
             
             # List to store all processed data that will be sent to Feishu
             processed_data = []
@@ -212,7 +212,7 @@ class FeishuWebhook:
                 logger.info(f"Created results directory: {results_dir}")
             
             # Get the base filename without extension
-            base_filename = os.path.splitext(os.path.basename(pdf_filename))[0]
+            base_filename = Path(os.path.basename(pdf_filename)).stem
             
             # Create the output JSON file path for original data
             output_file = os.path.join(results_dir, f"{base_filename}.json")
@@ -267,8 +267,7 @@ class FeishuWebhook:
             
         try:
             # 获取文件名（不含扩展名）
-            import os
-            base_filename = os.path.splitext(os.path.basename(pdf_filename))[0]
+            base_filename = Path(os.path.basename(pdf_filename)).stem
             
             # 创建结果目录（如果不存在）
             results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")

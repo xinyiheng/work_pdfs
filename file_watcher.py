@@ -22,7 +22,8 @@ class PDFHandler(FileSystemEventHandler):
                 logger.info(f"New file detected: {file_path}")
                 # Allow file to be fully written
                 time.sleep(2)
-                self.callback(file_path)
+                # Use Path object to handle special characters in filenames
+                self.callback(str(Path(file_path)))
     
     def _is_valid_extension(self, file_path):
         return any(file_path.lower().endswith(ext) for ext in self.extensions)
@@ -54,6 +55,7 @@ class FileWatcher:
         for file_path in Path(self.directory_to_watch).glob("*.pdf"):
             if process_all or self._should_process(file_path):
                 logger.info(f"Processing existing file: {file_path}")
+                # Use Path object to handle special characters in filenames
                 self.callback(str(file_path))
     
     def _should_process(self, file_path):

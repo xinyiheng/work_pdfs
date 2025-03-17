@@ -105,14 +105,16 @@ def process_pdf_file(pdf_path):
         
         # Process the PDF
         logger.info(f"Processing {filename}")
-        results = pdf_processor.process_and_format(pdf_path)
+        results = pdf_processor.process_and_format(str(Path(pdf_path)))
         
         if results:
             # Save results to a JSON file
             output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
             os.makedirs(output_dir, exist_ok=True)
             
-            json_filename = os.path.join(output_dir, f"{os.path.splitext(filename)[0]}.json")
+            # Use Path to handle special characters in filenames
+            base_filename = Path(filename).stem
+            json_filename = os.path.join(output_dir, f"{base_filename}.json")
             with open(json_filename, 'w', encoding='utf-8') as f:
                 json.dump(results, f, ensure_ascii=False, indent=2)
             
@@ -144,7 +146,7 @@ def ensure_json_record(pdf_file_path, extracted_data):
     
     try:
         # 获取基础文件名（不包含扩展名）
-        base_filename = os.path.splitext(os.path.basename(pdf_file_path))[0]
+        base_filename = Path(os.path.basename(pdf_file_path)).stem
         
         # 确保results目录存在
         results_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
@@ -373,10 +375,6 @@ def test_single_pdf():
                 start_page = custom_start_page
                 logger.info(f"使用自定义起始页: {start_page+1}")
             
-            # 如果不是从头开始，提示继续处理
-            if start_page > 2 and not force_reprocess:
-                logger.info(f"继续处理文件 {test_pdf}，从页码 {start_page+1} 开始")
-            
             # 处理PDF并获取书籍数据
             book_data = pdf_processor.process_and_format(test_pdf, max_pages=max_pages, start_page=start_page)
             
@@ -546,6 +544,9 @@ def watch_files():
     def process_new_pdf(pdf_path):
         try:
             logger.info(f"检测到新的PDF文件: {pdf_path}")
+            
+            # 确保使用Path对象处理路径，避免特殊字符问题
+            pdf_path = str(Path(pdf_path))
             
             # 检查是否已经处理过该文件
             pdf_path_key = os.path.abspath(pdf_path)
