@@ -368,10 +368,10 @@ def test_single_pdf():
                 return
             
             # 提取书籍信息，支持从上次处理的页码继续
-            start_page = pdf_progress.get('last_page', 2)  # 默认从第3页开始（索引为2）
+            start_page = pdf_progress.get('last_page', 0)  # 默认从第1页开始（索引为0）
             
             # 如果指定了自定义起始页，则使用自定义起始页
-            if custom_start_page is not None and (force_reprocess or start_page <= 2):
+            if custom_start_page is not None and (force_reprocess or start_page <= 0):
                 start_page = custom_start_page
                 logger.info(f"使用自定义起始页: {start_page+1}")
             
@@ -482,15 +482,15 @@ def process_all_pdfs():
             continue
         
         # 提取上次处理到的页码
-        start_page = pdf_progress.get('last_page', 2)  # 默认从第3页开始（索引为2）
+        start_page = pdf_progress.get('last_page', 0)  # 默认从第1页开始（索引为0）
         
         # 如果指定了自定义起始页，则使用自定义起始页
-        if custom_start_page is not None and (force_reprocess or start_page <= 2):
+        if custom_start_page is not None and (force_reprocess or start_page <= 0):
             start_page = custom_start_page
             logger.info(f"使用自定义起始页: {start_page+1}")
         
         # 如果不是从头开始，提示继续处理
-        if start_page > 2 and not force_reprocess:
+        if start_page > 0 and not force_reprocess:
             logger.info(f"继续处理文件 [{i+1}/{len(pdf_files)}]，从页码 {start_page+1} 开始: {pdf_file}")
             partially_processed_files += 1
         else:
@@ -563,10 +563,10 @@ def watch_files():
                 return
             
             # 提取上次处理到的页码
-            start_page = pdf_progress.get('last_page', 2)  # 默认从第3页开始（索引为2）
+            start_page = pdf_progress.get('last_page', 0)  # 默认从第1页开始（索引为0）
             
             # 如果指定了自定义起始页，则使用自定义起始页
-            if custom_start_page is not None and (force_reprocess or start_page <= 2):
+            if custom_start_page is not None and (force_reprocess or start_page <= 0):
                 start_page = custom_start_page
                 logger.info(f"使用自定义起始页: {start_page+1}")
             
@@ -625,7 +625,7 @@ def main():
     parser.add_argument('--max-pages', type=int, default=None, help='要处理的最大页数，默认为None（处理整个PDF）')
     parser.add_argument('--limit', type=int, default=0, help='处理所有文件时的最大文件数限制，默认为0（处理所有文件）')
     parser.add_argument('--force', action='store_true', help='强制重新处理所有文件，忽略之前的处理进度')
-    parser.add_argument('--start-page', type=int, default=None, help='开始处理的页码（从0开始计数），默认为2（即第3页）')
+    parser.add_argument('--start-page', type=int, default=None, help='开始处理的页码（从0开始计数），默认为0（即第1页）')
     args = parser.parse_args()
     
     # 设置日志

@@ -316,7 +316,7 @@ class PDFProcessor:
             logger.error(f"Error processing PDF {pdf_path}: {str(e)}")
             return []
 
-    def process_and_format(self, pdf_file, max_pages=None, start_page=2):
+    def process_and_format(self, pdf_file, max_pages=None, start_page=0):
         """Process PDF and format results according to the required structure"""
         results = self.process_pdf(pdf_file, max_pages, start_page)
         
