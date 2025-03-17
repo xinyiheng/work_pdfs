@@ -26,8 +26,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-WEBHOOK_URL = os.getenv('FEISHU_WEBHOOK_URL', 'https://thc4xpukay.feishu.cn/base/automation/webhook/event/W96za32DKwAW7Nh1FrUcmCnKnMg')
-OPENROUTER_API_KEY = "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"  # Updated API key
+WEBHOOK_URL = os.getenv('FEISHU_WEBHOOK_URL')
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Files')
 PROGRESS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'progress.pkl')  # 进度文件路径
 
