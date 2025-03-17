@@ -62,7 +62,7 @@ class PDFProcessor:
         
         return False
     
-    def process_pdf(self, pdf_path, max_pages=None, start_page=2):
+    def process_pdf(self, pdf_path, max_pages=None, start_page=0):
         """
         处理PDF文件并提取结构化信息
         
